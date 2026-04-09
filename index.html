@@ -23,8 +23,24 @@
       --text2:     #8b949e;
       --text3:     #c9d1d9;
       --card-hover:#1c2128;
+      --nav-bg:    rgba(13,17,23,0.85);
       --radius:    10px;
       --transition: 0.25s ease;
+    }
+
+    html.light {
+      --bg:        #ffffff;
+      --bg2:       #f6f8fa;
+      --bg3:       #eaeef2;
+      --border:    #d0d7de;
+      --accent:    #0969da;
+      --accent2:   #1a7f37;
+      --accent3:   #cf222e;
+      --text:      #1f2328;
+      --text2:     #656d76;
+      --text3:     #24292f;
+      --card-hover:#f3f4f6;
+      --nav-bg:    rgba(255,255,255,0.88);
     }
 
     html { scroll-behavior: smooth; }
@@ -42,7 +58,7 @@
     /* ── NAV ── */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(13,17,23,0.85);
+      background: var(--nav-bg);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       padding: 0 clamp(1rem, 5vw, 4rem);
@@ -401,6 +417,32 @@
       transition: opacity 0.5s ease, transform 0.5s ease;
     }
     .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── THEME TOGGLE ── */
+    .theme-toggle {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; cursor: pointer; flex-shrink: 0;
+      transition: background var(--transition), border-color var(--transition), transform var(--transition);
+      color: var(--text2);
+    }
+    .theme-toggle:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.08); }
+    .theme-toggle svg { transition: opacity 0.2s, transform 0.3s; }
+    .theme-toggle .icon-moon { display: block; }
+    .theme-toggle .icon-sun  { display: none; }
+    html.light .theme-toggle .icon-moon { display: none; }
+    html.light .theme-toggle .icon-sun  { display: block; }
+
+    /* smooth color transitions across the whole page */
+    *, *::before, *::after {
+      transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
+    /* but keep transforms snappy */
+    .btn, .project-card, .skill-group, .theme-toggle {
+      transition: background-color 0.25s ease, border-color 0.25s ease,
+                  color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+    }
   </style>
 </head>
 <body>
@@ -416,6 +458,16 @@
     <li><a href="#education">Education</a></li>
     <li><a href="#contact" class="nav-cta">Contact</a></li>
   </ul>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle light/dark mode">
+    <!-- moon: shown in dark mode -->
+    <svg class="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+    </svg>
+    <!-- sun: shown in light mode -->
+    <svg class="icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707z"/>
+    </svg>
+  </button>
 </nav>
 
 <!-- HERO -->
@@ -852,6 +904,17 @@
 </footer>
 
 <script>
+  // ── Theme toggle ──
+  const html = document.documentElement;
+  const toggleBtn = document.getElementById('themeToggle');
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light') html.classList.add('light');
+
+  toggleBtn.addEventListener('click', () => {
+    html.classList.toggle('light');
+    localStorage.setItem('theme', html.classList.contains('light') ? 'light' : 'dark');
+  });
+
   // Scroll fade-in
   const fadeObserver = new IntersectionObserver(
     entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
