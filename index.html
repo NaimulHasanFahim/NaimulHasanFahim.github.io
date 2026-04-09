@@ -58,8 +58,16 @@
     .nav-links a {
       color: var(--text2); font-size: 0.875rem; font-weight: 500;
       transition: color var(--transition);
+      position: relative; padding-bottom: 2px;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+      height: 2px; background: var(--accent); border-radius: 2px;
+      transform: scaleX(0); transition: transform var(--transition);
     }
     .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-links a.active { color: var(--text); }
+    .nav-links a.active::after { transform: scaleX(1); }
     .nav-cta {
       padding: 0.4rem 1rem;
       border: 1px solid var(--accent);
@@ -67,6 +75,7 @@
       color: var(--accent) !important;
     }
     .nav-cta:hover { background: rgba(88,166,255,0.1); }
+    .nav-cta.active { background: rgba(88,166,255,0.1); }
 
     /* ── HERO ── */
     #hero {
@@ -844,11 +853,32 @@
 
 <script>
   // Scroll fade-in
-  const observer = new IntersectionObserver(
+  const fadeObserver = new IntersectionObserver(
     entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
     { threshold: 0.1 }
   );
-  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  document.querySelectorAll('.fade-in').forEach(el => fadeObserver.observe(el));
+
+  // Active nav section highlighting
+  const sections = document.querySelectorAll('section[id], #contact');
+  const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+
+  function setActive(id) {
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+    });
+  }
+
+  const sectionObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) setActive(e.target.id);
+    });
+  }, {
+    rootMargin: '-50% 0px -45% 0px',
+    threshold: 0
+  });
+
+  sections.forEach(s => sectionObserver.observe(s));
 </script>
 </body>
 </html>
